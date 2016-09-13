@@ -14,23 +14,49 @@
 
 #include "tty_usb.h"
 #include <time.h>
+#include <stdio.h>
+
+static const int max_ans_delay = 10;
 static uint8_t cmd[] = {0xA0, 0x0A, 0x50, 0x05};
 int start_cmd(tty_usb_handle *h)
 {
-    int i=0;
-    struct timespec t={0, 100000000};
+    int i;
+    uint8_t r;
 
-    while(i<sizeof(cmd))
+    // This should switch to the mode where we can send START_TOKEN
+    tty_usb_w8(h, 0xA0);
+
     {
-        uint8_t v8;
-        tty_usb_w8(h, cmd[i]);
-        if((v8 = tty_usb_r8(h)) != (uint8_t)(~cmd[i]))
-            i=0;
-        else
-            i++;
+        struct timespec t={0, 100000000}; // 0.1 second
+        nanosleep(&t, NULL);
     }
 
-    nanosleep(&t, NULL);
+    tty_usb_flush(h);
+
+    // Now start sending the start token
+    for(i = 0; i < sizeof(cmd); i++)
+    {
+        tty_usb_w8(h, cmd[i]);
+    }
+
+    for(i = 0; i < sizeof(cmd); i++)
+    {
+        r = tty_usb_r8(h);
+        if (r != cmd[i])
+        {
+            fprintf(stderr, "Wrong answer to start token: %02X (should be %02X)\n",
+                    r, cmd[i]);
+            return -1;
+        }
+    }
+
+    fprintf(stderr, "Successfuly sent the start token\n");
+
+    {
+        struct timespec t={0, 100000000}; // 0.01 second
+        nanosleep(&t, NULL);
+    }
+
     tty_usb_flush(h);
 
     return 0;

@@ -219,6 +219,11 @@ int main(int argc, char *argv[])
     else printf("connect preloader\n");
 
     r = get_hw_code(h, &chip_code);
+    if(r)
+    {
+        printf("ERROR: get_hw_code(%d)\n", r);
+        return 1;
+    }
     printf("chip:%x\n", chip_code);
     chip = get_chip_data(chip_code);
 

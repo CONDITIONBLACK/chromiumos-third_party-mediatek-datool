@@ -12,6 +12,7 @@
  * GNU General Public License for more details.
  */
 
+#include <stdio.h>
 #include <arpa/inet.h>
 #include "tty_usb.h"
 #define TGT_TYPE_UNKNOWN   0
@@ -86,7 +87,11 @@ uint8_t tty_usb_r8(tty_usb_handle *h)
 int tty_usb_w8_echo(tty_usb_handle *h, uint8_t data)
 {
     tty_usb_w8(h, data);
-    if(tty_usb_r8(h)!=data) return -1;
+    uint8_t r = tty_usb_r8(h);
+    if(r!=data) {
+	    fprintf(stderr, "Wrong answer: %02x, should be %02x\n", r, data);
+	    return -1;
+    }
     return 0;
 }
 
