@@ -27,8 +27,6 @@ SOURCES := \
 
 	SOURCES += utils/tty_usb_linux.c
 
-	CFLAGS += -D LINUX
-
 CFLAGS += -Iinc
 
 .PHONY: all clean
