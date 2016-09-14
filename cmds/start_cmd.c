@@ -22,14 +22,12 @@ int start_cmd(tty_usb_handle *h)
 {
     int i;
     uint8_t r;
+    struct timespec t={0, 100000000}; // 0.1 second
 
     // This should switch to the mode where we can send START_TOKEN
     tty_usb_w8(h, 0xA0);
 
-    {
-        struct timespec t={0, 100000000}; // 0.1 second
-        nanosleep(&t, NULL);
-    }
+    nanosleep(&t, NULL);
 
     tty_usb_flush(h);
 
@@ -39,24 +37,22 @@ int start_cmd(tty_usb_handle *h)
         tty_usb_w8(h, cmd[i]);
     }
 
+    nanosleep(&t, NULL);
+
     for(i = 0; i < sizeof(cmd); i++)
     {
         r = tty_usb_r8(h);
-        if (r != cmd[i])
+        if (r != (uint8_t)~cmd[i])
         {
             fprintf(stderr, "Wrong answer to start token: %02X (should be %02X)\n",
-                    r, cmd[i]);
+                    r, (uint8_t)~cmd[i]);
             return -1;
         }
     }
 
     fprintf(stderr, "Successfuly sent the start token\n");
 
-    {
-        struct timespec t={0, 100000000}; // 0.01 second
-        nanosleep(&t, NULL);
-    }
-
+    nanosleep(&t, NULL);
     tty_usb_flush(h);
 
     return 0;
