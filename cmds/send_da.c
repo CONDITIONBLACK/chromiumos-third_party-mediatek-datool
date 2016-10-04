@@ -23,7 +23,7 @@ int send_da(tty_usb_handle *h, uint32_t addr, void* da, size_t len_da, void* sig
     if(tty_usb_w8_echo(h, 0xD7) != 0) return -1;
     if(tty_usb_w32_echo(h, addr) != 0) return -2;
     if(tty_usb_w32_echo(h, (len_da+len_sig)) != 0) return -3;
-    if(tty_usb_w32_echo(h, len_sig) != 0) return -4;
+    if(tty_usb_w32_echo(h, 0x100) != 0) return -4; //size of package
 
     status = tty_usb_r16(h);
     if(E_ERROR <= status) return status;
