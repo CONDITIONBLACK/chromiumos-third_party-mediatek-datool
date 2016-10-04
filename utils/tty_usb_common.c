@@ -13,7 +13,7 @@
  */
 
 #include <stdio.h>
-#include <arpa/inet.h>
+#include <endian.h>
 #include "tty_usb.h"
 #define TGT_TYPE_UNKNOWN   0
 #define TGT_TYPE_BROM      1
@@ -97,7 +97,7 @@ int tty_usb_w8_echo(tty_usb_handle *h, uint8_t data)
 
 void tty_usb_w16(tty_usb_handle *h, uint16_t data)
 {
-    data = htons(data);
+    data = htobe16(data);
     tty_usb_write(h, &data, 2);
 }
 
@@ -105,7 +105,7 @@ uint16_t tty_usb_r16(tty_usb_handle *h)
 {
     uint16_t data;
     tty_usb_read(h, &data, 2);
-    return ntohs(data);
+    return be16toh(data);
 }
 
 int tty_usb_w16_echo(tty_usb_handle *h, uint16_t data)
@@ -117,7 +117,7 @@ int tty_usb_w16_echo(tty_usb_handle *h, uint16_t data)
 
 void tty_usb_w32(tty_usb_handle *h, uint32_t data)
 {
-    data = htonl(data);
+    data = htobe32(data);
     tty_usb_write(h, &data, 4);
 }
 
@@ -125,13 +125,33 @@ uint32_t tty_usb_r32(tty_usb_handle *h)
 {
     uint32_t data;
     tty_usb_read(h, &data, 4);
-    return ntohl(data);
+    return be32toh(data);
 }
 
 int tty_usb_w32_echo(tty_usb_handle *h, uint32_t data)
 {
     tty_usb_w32(h, data);
     if(tty_usb_r32(h)!=data) return -1;
+    return 0;
+}
+
+void tty_usb_w64(tty_usb_handle *h, uint64_t data)
+{
+    data = htobe64(data);
+    tty_usb_write(h, &data, 8);
+}
+
+uint64_t tty_usb_r64(tty_usb_handle *h)
+{
+  uint64_t data;
+  tty_usb_read(h, &data, 8);
+  return be64toh(data);
+}
+
+int tty_usb_w64_echo(tty_usb_handle *h, uint64_t data)
+{
+    tty_usb_w64(h, data);
+    if(tty_usb_r64(h)!=data) return -1;
     return 0;
 }
 

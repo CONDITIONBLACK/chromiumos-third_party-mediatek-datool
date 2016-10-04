@@ -52,6 +52,9 @@ extern void tty_usb_w32(tty_usb_handle *h, uint32_t data);
 extern uint32_t tty_usb_r32(tty_usb_handle *h);
 extern int tty_usb_w32_echo(tty_usb_handle *h, uint32_t data);
 
+extern void tty_usb_w64(tty_usb_handle *h, uint64_t data);
+extern uint64_t tty_usb_r64(tty_usb_handle *h);
+extern int tty_usb_w64_echo(tty_usb_handle *h, uint64_t data);
 
 #endif // _TTY_USB_H_
 
