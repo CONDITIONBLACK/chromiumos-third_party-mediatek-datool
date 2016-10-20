@@ -1,21 +1,14 @@
 == fbtool introduction ==
 	fbtool is a tool program running at host pc.
-	It will send preloader and lk to platform via usb in order to support fastboot command.
+	It will send preloader and lk to platform via usb.
 	
 
 1 source code
-        vendor/mediatek/proprietary/external/datool
+	https://github.com/aldebaran/chromiumos-third_party-mediatek-datool
 
 2 build
-	windows:
-		install visual studio.
-		chdir windows and run nmake.
-		output file --> out\fbtool.exe
 	linux:
-	osX:
-		build android.
-		mmm vendor/mediatek/proprietary/external/datool
-		output file --> ${ANDROID_HOST_OUT}/bin/fbtool
+		make
 
 3 usage
 	fbtool [-a auth_file] preloader lk

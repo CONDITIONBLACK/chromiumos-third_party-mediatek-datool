@@ -14,8 +14,6 @@
 
 TARGET := fbtool
 
-OSTYPE := $(shell uname)
-
 SOURCES := \
 	fbtool.c\
 	cmds/start_cmd.c \
@@ -27,19 +25,9 @@ SOURCES := \
 	utils/file_util.c \
 	utils/tty_usb_common.c
 
-ifeq ($(OSTYPE), Linux)
 	SOURCES += utils/tty_usb_linux.c
-else
-	SOURCES += utils/tty_usb_osx.c
-endif
 
-ifeq ($(OSTYPE), Linux)
 	CFLAGS += -D LINUX
-endif
-
-ifeq ($(OSTYPE), Darwin)
-	CFLAGS += -framework CoreFoundation -framework IOKit
-endif
 
 CFLAGS += -Iinc
 
