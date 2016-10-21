@@ -13,14 +13,14 @@
  */
 
 #include <stdint.h>
-#include "tty_usb.h"
+#include <tty_usb.h>
 #define E_ERROR 0x1000
-int get_target_config(tty_usb_handle *h, uint32_t* pdata)
+int get_hw_code(tty_usb_handle *h, uint16_t* pdata)
 {
     uint16_t status;
 
-    if(tty_usb_w8_echo(h, 0xD8)!=0) return -1;
-    *pdata = tty_usb_r32(h);
+    if(tty_usb_w8_echo(h, 0xFD)!=0) return -1;
+    *pdata = tty_usb_r16(h);
     status = tty_usb_r16(h);
     if(E_ERROR <= status) return status;
 

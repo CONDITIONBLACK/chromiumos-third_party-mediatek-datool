@@ -12,9 +12,18 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FILE_UTIL_H_
-#define _FILE_UTIL_H_
+#include <tty_usb.h>
+#define E_ERROR 0x1000
+int jump_da(tty_usb_handle *h, uint32_t addr)
+{
+    uint16_t status;
 
-void load_binary(char *path, void **data, size_t *len);
+    if(tty_usb_w8_echo(h, 0xD5)!=0) return -1;
+    if(tty_usb_w32_echo(h, addr)!=0) return -2;
 
-#endif // _FILE_UTIL_H_
+    status = tty_usb_r16(h);
+    if(E_ERROR <= status) return status;
+
+    return 0;
+
+}

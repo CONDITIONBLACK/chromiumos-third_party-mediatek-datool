@@ -16,10 +16,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "tty_usb.h"
-#include "cmds.h"
-#include "file_util.h"
 #include <mtkparse.h>
+#include <da_cmds.h>
+#include <tty_usb.h>
+#include <file_util.h>
 
 enum CHIP_ID {
     CHIP_ID_DEFAULT,

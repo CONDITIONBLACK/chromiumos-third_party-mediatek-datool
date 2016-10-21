@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  */
 
-#include "tty_usb.h"
+#include <tty_usb.h>
 #define E_ERROR 0x1000
 int send_da(tty_usb_handle *h, uint32_t addr, void* da, size_t len_da, void* sig, size_t len_sig)
 {

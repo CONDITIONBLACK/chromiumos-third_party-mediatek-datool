@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  */
 
-#include "tty_usb.h"
+#include <tty_usb.h>
 #define E_ERROR 0x1000
 int send_auth(tty_usb_handle *h, void* auth, size_t len)
 {

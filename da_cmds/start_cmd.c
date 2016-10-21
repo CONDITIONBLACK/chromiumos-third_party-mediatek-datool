@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  */
 
-#include "tty_usb.h"
+#include <tty_usb.h>
 #include <time.h>
 #include <stdio.h>
 

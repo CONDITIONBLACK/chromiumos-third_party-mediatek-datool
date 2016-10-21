@@ -16,19 +16,19 @@
 #define _CMDS_H_
 
 #include <stdint.h>
-#include "tty_usb.h"
+#include <tty_usb.h>
 
-extern int start_cmd(tty_usb_handle *h);
+int start_cmd(tty_usb_handle *h);
 
-extern int get_hw_code(tty_usb_handle *h, uint16_t* pdata);
+int get_hw_code(tty_usb_handle *h, uint16_t* pdata);
 #define TGT_CFG_SBC_EN                  0x00000001
 #define TGT_CFG_SLA_EN                  0x00000002
 #define TGT_CFG_DAA_EN                  0x00000004
 #define TGT_CFG_EPP_PARAM_EXIST         0x00000008
 #define TGT_CFG_ROOT_CERT_REQUIRED      0x00000010
-extern int get_target_config(tty_usb_handle *h, uint32_t* data);
-extern int send_auth(tty_usb_handle *h, void* p_auth, size_t len);
-extern int send_da(tty_usb_handle *h, uint32_t addr, void* da, size_t len_da, void* sig, size_t len_sig);
-extern int jump_da(tty_usb_handle *h, uint32_t addr);
+int get_target_config(tty_usb_handle *h, uint32_t* data);
+int send_auth(tty_usb_handle *h, void* p_auth, size_t len);
+int send_da(tty_usb_handle *h, uint32_t addr, void* da, size_t len_da, void* sig, size_t len_sig);
+int jump_da(tty_usb_handle *h, uint32_t addr);
 
 #endif // _CMDS_H_
