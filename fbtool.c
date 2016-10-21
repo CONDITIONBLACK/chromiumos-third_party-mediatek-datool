@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "tty_usb.h"
 #include "cmds.h"
 #include "file_util.h"
@@ -183,28 +184,24 @@ int main(int argc, char *argv[])
     CHIP_DATA* chip;
     char lk_sig_path[4096];
 
-    if((argc!=3) && (argc!=5))
-    {
-        printf("Version: 1.0\n");
-        printf("Usage: %s [-a auth] preloader lk\n", argv[0]);
+    int c;
+    while ((c = getopt(argc, argv, "ha:")) != -1) {
+        switch(c)
+        {
+        case 'h':
+          printf("Usage: %s [-h] [-a auth] preloader lk\n", argv[0]);
+          return 0;
+        case 'a':
+          auth_path = optarg;
+          break;
+        }
+    }
+    if (argv[optind] == NULL || argv[optind+1] == NULL) {
+        printf("Usage: %s [-h] [-a auth] preloader lk\n", argv[0]);
         return 1;
     }
-    if(argc == 3)
-    {
-        pl_path = argv[1];
-        lk_path = argv[2];
-    }
-    else // argc == 5
-    {
-        if(strcmp(argv[1], "-a") != 0)
-        {
-            printf("Usage: %s [-a auth] preloader lk\n", argv[0]);
-            return 1;
-        }
-        auth_path = argv[2];
-        pl_path = argv[3];
-        lk_path = argv[4];
-    }
+    pl_path = argv[optind];
+    lk_path = argv[optind+1];
 
     h = tty_usb_open_auto();
     is_brom = tty_usb_is_target_brom();
