@@ -9,6 +9,6 @@ set(FBTOOL_SRC fbtool.c)
 
 add_executable(fbtool ${FBTOOL_SRC})
 target_include_directories(fbtool PRIVATE inc)
-target_link_libraries(fbtool mtkparse dacmds utils)
+target_link_libraries(fbtool mtkparse dacmds)
 
 add_subdirectory(tool)
