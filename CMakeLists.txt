@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.6.2)
 project(datool)
 
+add_subdirectory(libmtkparse)
+
 set(FBTOOL_SRC
   fbtool.c
   cmds/start_cmd.c
