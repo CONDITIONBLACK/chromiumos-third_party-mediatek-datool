@@ -15,3 +15,5 @@ set(FBTOOL_SRC
 
 add_executable(fbtool ${FBTOOL_SRC})
 target_include_directories(fbtool PRIVATE inc)
+
+add_subdirectory(tool)
