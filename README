@@ -8,6 +8,8 @@
 
 2 build
 	linux:
+		mkdir BUILD && cd BUILD
+		cmake ..
 		make
 
 3 usage
