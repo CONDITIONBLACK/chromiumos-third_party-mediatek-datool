@@ -13,6 +13,8 @@
  */
 
 #include <tty_usb.h>
+#include <stdio.h>
+#include <stdint.h>
 #define E_ERROR 0x1000
 int send_da(tty_usb_handle *h, uint32_t addr, void* da, size_t len_da, void* sig, size_t len_sig)
 {
@@ -43,4 +45,34 @@ int send_da(tty_usb_handle *h, uint32_t addr, void* da, size_t len_da, void* sig
     if(E_ERROR <= status) return status;
 
     return 0;
+}
+
+int send_da_part_2(tty_usb_handle *h, uint32_t base_addr, void *da, uint32_t len_da, void *sig, size_t len_sig)
+{
+    tty_usb_w32(h, base_addr);
+    tty_usb_w32(h, len_da+len_sig);
+    tty_usb_w32(h, 0x1000); // Size of package
+
+    if (tty_usb_r8(h) != 0x5A) {
+        printf("We were waiting for 0x5A\n");
+    }
+
+    unsigned cnt = 0;
+    uint32_t current = 0;
+    printf("Upload: ");
+    for (; cnt < len_da/4096; cnt++) {
+        tty_usb_write(h, da+cnt*4096, 4096);
+        if (tty_usb_r8(h) != 0x5A)
+            printf("ACK failed during download!\n");
+        uint32_t percent = (cnt+1)*4096*100/len_da;
+        while(current < percent) {
+            printf("=");
+            current++;
+        }
+    }
+    printf("\n");
+    tty_usb_write(h, da+cnt*4096, len_da-4096*cnt);
+    tty_usb_write(h, sig, len_sig);
+    if (tty_usb_r8(h) != 0x5A)
+        printf("ACK failed!\n");
 }

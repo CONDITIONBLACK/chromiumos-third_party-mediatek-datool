@@ -31,6 +31,9 @@ int send_auth(tty_usb_handle *h, void* p_auth, size_t len);
 int send_da(tty_usb_handle *h, uint32_t addr, void* da, size_t len_da, void* sig, size_t len_sig);
 int jump_da(tty_usb_handle *h, uint32_t addr);
 
-int download_download_agent(tty_usb_handle *h, int is_brom, char *auth_path, char *pl_path,
-        char *lk_path, uint16_t chip_code);
+int download_download_agent(tty_usb_handle *h, char *da_path, uint16_t chip_code);
+int get_emmc_nand_info(tty_usb_handle *h);
+int send_da_part_2(tty_usb_handle *h, uint32_t base_addr, void *da, uint32_t len_da, void *sig, size_t len_sig);
+
 #endif // _CMDS_H_
+

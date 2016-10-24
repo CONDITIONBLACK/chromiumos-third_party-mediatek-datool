@@ -12,6 +12,8 @@ struct mtk_da_file_header mtk_find_download_agent(const struct mtk_da *da, uint1
       return da->files_headers[i];
   }
   struct mtk_da_file_header empty;
+  empty.magic[0] = 0;
+  empty.magic[1] = 0;
   return empty;
 }
 

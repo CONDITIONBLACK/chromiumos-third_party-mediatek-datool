@@ -5,7 +5,8 @@ set(DA_CMDS_SRC
   send_auth.c
   send_da.c
   jump_da.c
-  download_helper.c)
+  download_helper.c
+  helpers.c)
 
 add_library(dacmds ${DA_CMDS_SRC})
 target_include_directories(dacmds PUBLIC inc)
