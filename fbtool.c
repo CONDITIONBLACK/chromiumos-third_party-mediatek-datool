@@ -233,8 +233,6 @@ int main(int argc, char *argv[])
         free(bootloaders.scatters);
 
         tty_usb_close(h);
-        // TODO: Handle several bootloaders
-        // TODO: Move bootloader upload in stage2_download
         stage2_format(h, &disks);
     }
 
