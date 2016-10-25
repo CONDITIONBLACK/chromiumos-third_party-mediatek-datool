@@ -113,6 +113,35 @@ static int stage2_download(tty_usb_handle *h, const struct mtk_scatter_file* sca
     return 0;
 }
 
+static void stage2_format(tty_usb_handle *h, const struct mtk_disks *disks)
+{
+    for (unsigned i = 0; i < disks->number; ++i) {
+        if (disks->disks[i].size == 0)
+            continue;
+        set_current_partition(h, disks->disks[i].index);
+        read_BMT(h);
+        format(h, 0x0, disks->disks[i].size);
+        read_BMT(h);
+    }
+
+    {
+        tty_usb_w8(h, 0xE0);
+        tty_usb_w32(h, 0x00);
+        tty_usb_r8(h); // 0x5A
+    }
+
+    // TODO: Use it to tests signature of bootloader
+    // get_rsa(h);
+
+    {
+        tty_usb_w8(h, 0xBF);
+        tty_usb_r8(h); // 0x5A
+        tty_usb_r32(h); // 0x02
+    }
+
+    is_BMT_remark(h);
+}
+
 int main(int argc, char *argv[])
 {
     tty_usb_handle *h = NULL;
@@ -120,15 +149,20 @@ int main(int argc, char *argv[])
     char *opt_da_path=NULL, *opt_scatter_path=NULL;
     uint16_t chip_code;
     int opt_download = 0;
+    int opt_format = 0;
 
     int c;
-    while ((c = getopt(argc, argv, "hd")) != -1) {
+    while ((c = getopt(argc, argv, "hdf")) != -1) {
         switch(c)
         {
             case 'h':
                 printf("Usage: %s [-h] [-a auth] da scatter\n", argv[0]);
                 return 0;
             case 'd':
+                opt_download = 1;
+                break;
+            case 'f':
+                opt_format = 1;
                 opt_download = 1;
                 break;
         }
@@ -184,6 +218,24 @@ int main(int argc, char *argv[])
         tty_usb_w8(h, 0xE0);
         tty_usb_w32(h, 0x00);
         tty_usb_r8(h); // 0x5A
+    }
+
+    if (opt_format) {
+        // TODO: If format has been choosen all partition need to be rewrite.
+        //       Compare scatter_file content with get_partition result
+        struct mtk_scatter_file bootloaders = mtk_filter_scatter_file(&scatter_f, &to_update_filter, "BOOTLOADERS");
+        if (bootloaders.number == 0) {
+            printf("Ask for formatting but no bootloader find in scatter file (%s).\n"
+                    "You will not be able to do something after that.\n"
+                    "Leaving.\n", opt_scatter_path);
+            return 1;
+        }
+        free(bootloaders.scatters);
+
+        tty_usb_close(h);
+        // TODO: Handle several bootloaders
+        // TODO: Move bootloader upload in stage2_download
+        stage2_format(h, &disks);
     }
 
     if (opt_download) {
