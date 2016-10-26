@@ -20,6 +20,7 @@
 #include <da_cmds.h>
 #include <da_stage2.h>
 #include <tty_usb.h>
+#include <inttypes.h>
 
 static void download_part(tty_usb_handle *h, const struct mtk_scatter_header* scatter_h, const struct ptb* ptb)
 {
@@ -66,16 +67,10 @@ static bool to_update_filter(const struct mtk_scatter_header *scatter_h, void *d
     return scatter_h->is_download && !strncmp(scatter_h->operation_type, string, strlen(string));
 }
 
-static int stage2_download(tty_usb_handle *h, const struct mtk_scatter_file* scatter_f)
+static int stage2_download(tty_usb_handle *h, const struct mtk_scatter_file* scatter_f, const struct ptb *old_ptb)
 {
     // TODO: check signatures
     // get_rsa(h);
-
-    struct ptb old_ptb = get_partition(h);
-    if (old_ptb.number == 0) {
-        printf("Cannot get partition table.\nStop downloading.\n");
-        return -1;
-    }
 
     struct mtk_scatter_file bootloaders = mtk_filter_scatter_file(scatter_f, &to_update_filter, "BOOTLOADERS");
     if (bootloaders.number != 0)
@@ -89,16 +84,13 @@ static int stage2_download(tty_usb_handle *h, const struct mtk_scatter_file* sca
 
     struct mtk_scatter_file to_update = mtk_filter_scatter_file(scatter_f, &to_update_filter, "UPDATE");
     for (unsigned i = 0; i < to_update.number; ++i)
-        download_part(h, &to_update.scatters[i], &old_ptb);
+        download_part(h, &to_update.scatters[i], old_ptb);
 
     {
         struct ptb ptb = get_partition(h);
         if (ptb.number == 0)
-            set_partition(h, &old_ptb);
+            set_partition(h, old_ptb);
     }
-
-    free(old_ptb.part);
-    old_ptb.part = NULL;
 
     printf("%i file to send\n", to_update.number);
     for (unsigned i = 0; i < to_update.number; ++i) {
@@ -107,8 +99,8 @@ static int stage2_download(tty_usb_handle *h, const struct mtk_scatter_file* sca
         if (i == to_update.number -1) index_s += INDEX_S_END;
         if (send_file(h, &to_update.scatters[i], index_s) != 0)
             return 1;
-        free(to_update.scatters);
     }
+    free(to_update.scatters);
 
     return 0;
 }
@@ -210,14 +202,25 @@ int main(int argc, char *argv[])
         tty_usb_w8(h, 0x5A);
 
     struct mtk_disks disks = get_disks_info(h);
+    for (uint8_t i = 0; i < disks.number; ++i) {
+        if (disks.disks[i].size == 0)
+            continue;
+        printf("%u: 0x%016" PRIx64 "\n", disks.disks[i].index, disks.disks[i].size);
+    }
 
     // Get USB Speed Status
     printf("USB Speed Status: %x\n", get_usb_speed_status(h));
 
-    {
-        tty_usb_w8(h, 0xE0);
-        tty_usb_w32(h, 0x00);
-        tty_usb_r8(h); // 0x5A
+    //{
+    //    tty_usb_w8(h, 0xE0);
+    //    tty_usb_w32(h, 0x00);
+    //    tty_usb_r8(h); // 0x5A
+    //}
+
+    struct ptb old_ptb = get_partition(h);
+    if (old_ptb.number == 0) {
+        printf("Cannot get partition table.\nStop downloading.\n");
+        return -1;
     }
 
     if (opt_format) {
@@ -232,14 +235,14 @@ int main(int argc, char *argv[])
         }
         free(bootloaders.scatters);
 
-        tty_usb_close(h);
         stage2_format(h, &disks);
     }
 
     if (opt_download) {
-        if (stage2_download(h, &scatter_f) != 0)
+        if (stage2_download(h, &scatter_f, &old_ptb) != 0)
             printf("Download of files have been aborted due to error.\n");
     }
+    free(old_ptb.part);
 
     free(disks.disks);
     free(scatter_f.scatters);

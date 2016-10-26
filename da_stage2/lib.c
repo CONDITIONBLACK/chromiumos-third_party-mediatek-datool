@@ -430,6 +430,7 @@ void send_bootloader(tty_usb_handle* h, const struct mtk_scatter_header *bootloa
       tty_usb_w16(h, chksum);
       if (tty_usb_r8(h) != 0x69)
         printf("Error with chksum\n");
+      tty_usb_w8(h, 0x5A);
     }
   }
 
